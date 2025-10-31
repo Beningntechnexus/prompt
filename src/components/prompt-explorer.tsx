@@ -8,7 +8,10 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Textarea } from '@/components/ui/textarea';
+import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
@@ -39,6 +42,26 @@ const DecorativePattern = () => (
   <div className="absolute inset-0 h-full w-full bg-transparent bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
 );
 
+// --- Data Fetching and Mutations ---
+
+const fetchCategories = async () => supabase.from('categories').select('*').order('name');
+const fetchPrompts = async () => supabase.from('prompts').select('id, title, prompt_text, category_id');
+
+const createPrompt = async (prompt: Omit<Prompt, 'id' | 'created_at'>) => {
+  return supabase.from('prompts').insert(prompt).select().single();
+};
+
+const updatePrompt = async (id: number, updates: Partial<Prompt>) => {
+  return supabase.from('prompts').update(updates).eq('id', id).select().single();
+};
+
+const deletePrompt = async (id: number) => {
+  return supabase.from('prompts').delete().eq('id', id);
+};
+
+
+// --- Main Component ---
+
 export function PromptExplorer() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -46,37 +69,41 @@ export function PromptExplorer() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const categoriesPromise = supabase.from('categories').select('*').order('name');
-        const promptsPromise = supabase.from('prompts').select('id, title, prompt_text, category_id');
-        
-        const [{ data: categoriesData, error: categoriesError }, { data: promptsData, error: promptsError }] = await Promise.all([categoriesPromise, promptsPromise]);
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [categoriesResult, promptsResult] = await Promise.all([
+        fetchCategories(),
+        fetchPrompts(),
+      ]);
 
-        if (categoriesError) throw categoriesError;
-        if (promptsError) throw promptsError;
+      if (categoriesResult.error) throw categoriesResult.error;
+      if (promptsResult.error) throw promptsResult.error;
 
-        setCategories(categoriesData || []);
-        setPrompts(promptsData || []);
-      } catch (err: any) {
-        setError('Failed to load data. Please try again later.');
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: err.message,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+      setCategories(categoriesResult.data || []);
+      setPrompts(promptsResult.data || []);
+    } catch (err: any) {
+      setError('Failed to load data. Please try again later.');
+      toast({
+        variant: 'destructive',
+        title: 'Error loading data',
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   }, [toast]);
 
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+  
   const filteredPrompts = useMemo(() => {
     if (!selectedCategoryId) return [];
     
@@ -149,6 +176,49 @@ export function PromptExplorer() {
     URL.revokeObjectURL(url);
   };
 
+  const handleOpenEditForm = (prompt: Prompt) => {
+    setEditingPrompt(prompt);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenCreateForm = () => {
+    setEditingPrompt(null);
+    setIsFormOpen(true);
+  }
+
+  const handleFormSubmit = async (formData: { title: string, prompt_text: string }) => {
+    try {
+      if (editingPrompt) {
+        // Update existing prompt
+        const { data, error } = await updatePrompt(editingPrompt.id, formData);
+        if (error) throw error;
+        setPrompts(prompts.map(p => p.id === data.id ? data : p));
+        toast({ title: 'Success', description: 'Prompt updated successfully.' });
+      } else if(selectedCategoryId) {
+        // Create new prompt
+        const { data, error } = await createPrompt({ ...formData, category_id: selectedCategoryId });
+        if (error) throw error;
+        setPrompts([...prompts, data]);
+        toast({ title: 'Success', description: 'Prompt created successfully.' });
+      }
+      setIsFormOpen(false);
+      setEditingPrompt(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Save failed", description: err.message });
+    }
+  };
+
+  const handleDeletePrompt = async (id: number) => {
+    try {
+      const { error } = await deletePrompt(id);
+      if (error) throw error;
+      setPrompts(prompts.filter(p => p.id !== id));
+      toast({ title: 'Success', description: 'Prompt deleted successfully.' });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Delete failed", description: err.message });
+    }
+  };
+
   const renderLoading = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {Array.from({ length: 8 }).map((_, i) => (
@@ -194,16 +264,25 @@ export function PromptExplorer() {
 
   const renderPromptList = () => (
     <div>
-      <Button variant="ghost" onClick={handleBackToCategories} className="mb-6">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Categories
-      </Button>
-      <h1 className="text-3xl font-bold tracking-tight mb-2 font-headline">
-        {selectedCategory?.name}
-      </h1>
-      <p className="text-md text-muted-foreground mb-6">
-        {`Browse and search for prompts in the "${selectedCategory?.name}" category.`}
-      </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <Button variant="ghost" onClick={handleBackToCategories} className="mb-6 -ml-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Categories
+          </Button>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 font-headline">
+            {selectedCategory?.name}
+          </h1>
+          <p className="text-md text-muted-foreground mb-6">
+            {`Browse and search for prompts in the "${selectedCategory?.name}" category.`}
+          </p>
+        </div>
+        <Button onClick={handleOpenCreateForm} className="mt-8">
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Prompt
+        </Button>
+      </div>
+
       <div className="relative mb-8">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
@@ -229,16 +308,30 @@ export function PromptExplorer() {
                 <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-muted/50 p-3 rounded-md">
                   {prompt.prompt_text}
                 </div>
-                <div className="flex items-center justify-end gap-2 mt-4">
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy(prompt.prompt_text)}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleShare(prompt.title, prompt.prompt_text)}>
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}>
-                    <Download className="h-4 w-4" />
-                  </Button>
+                <div className="flex items-center justify-end gap-1 mt-4">
+                    <Button variant="ghost" size="icon" onClick={() => handleCopy(prompt.prompt_text)}><Copy className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleShare(prompt.title, prompt.prompt_text)}><Share2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}><Download className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(prompt)}><Pencil className="h-4 w-4" /></Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete this prompt.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeletePrompt(prompt.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -252,12 +345,75 @@ export function PromptExplorer() {
     </div>
   );
   
-  if (loading) return renderLoading();
-  if (error) return renderError();
-
   return (
     <div className="w-full transition-all duration-300">
-      {selectedCategoryId === null ? renderCategoryGrid() : renderPromptList()}
+      {loading ? renderLoading() : 
+       error ? renderError() :
+       selectedCategoryId === null ? renderCategoryGrid() : renderPromptList()
+      }
+      <PromptFormDialog 
+        isOpen={isFormOpen} 
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleFormSubmit}
+        prompt={editingPrompt}
+      />
     </div>
+  );
+}
+
+// --- PromptFormDialog Component ---
+
+interface PromptFormDialogProps {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  onSubmit: (formData: { title: string, prompt_text: string }) => Promise<void>;
+  prompt: Prompt | null;
+}
+
+function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptFormDialogProps) {
+  const [title, setTitle] = useState('');
+  const [promptText, setPromptText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(prompt?.title || '');
+      setPromptText(prompt?.prompt_text || '');
+    }
+  }, [isOpen, prompt]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    await onSubmit({ title, prompt_text: promptText });
+    setIsSubmitting(false);
+  };
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[625px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>{prompt ? 'Edit Prompt' : 'Create New Prompt'}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label htmlFor="title">Title</label>
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="prompt_text">Prompt</label>
+              <Textarea id="prompt_text" value={promptText} onChange={(e) => setPromptText(e.target.value)} required className="min-h-[200px]" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
