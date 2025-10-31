@@ -8,7 +8,7 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, ArrowLeft, LoaderCircle, ServerCrash, Layers3, BotMessageSquare } from 'lucide-react';
+import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 export function PromptExplorer() {
@@ -73,6 +73,53 @@ export function PromptExplorer() {
     setSelectedCategoryId(null);
     setSearchQuery('');
   }, []);
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: "Prompt copied to clipboard.",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Failed to copy",
+        description: "Could not copy prompt to clipboard.",
+      });
+    }
+  };
+
+  const handleShare = async (title: string, text: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: text,
+        });
+      } catch (err) {
+        // Silently fail if user cancels share
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Not supported",
+        description: "Web Share API is not supported in your browser.",
+      });
+    }
+  };
+
+  const handleDownload = (title: string, text: string) => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/ /g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const renderLoading = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -146,6 +193,17 @@ export function PromptExplorer() {
               <AccordionContent className="p-4 pt-0">
                 <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-muted/50 p-3 rounded-md">
                   {prompt.prompt_text}
+                </div>
+                <div className="flex items-center justify-end gap-2 mt-4">
+                  <Button variant="ghost" size="sm" onClick={() => handleCopy(prompt.prompt_text)}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleShare(prompt.title, prompt.prompt_text)}>
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}>
+                    <Download className="h-4 w-4" />
+                  </Button>
                 </div>
               </AccordionContent>
             </AccordionItem>
