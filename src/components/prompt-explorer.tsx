@@ -8,8 +8,36 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download } from 'lucide-react';
+import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+
+const categoryIcons: { [key: string]: React.ReactNode } = {
+  'AI Tools': <BrainCircuit className="w-8 h-8 text-primary" />,
+  'Art': <Palette className="w-8 h-8 text-primary" />,
+  'Blogging': <PenTool className="w-8 h-8 text-primary" />,
+  'Business': <Building className="w-8 h-8 text-primary" />,
+  'ChatGPT': <BotMessageSquare className="w-8 h-8 text-primary" />,
+  'Coding': <Code className="w-8 h-8 text-primary" />,
+  'Education': <Book className="w-8 h-8 text-primary" />,
+  'Finance': <Briefcase className="w-8 h-8 text-primary" />,
+  'Health': <Heart className="w-8 h-8 text-primary" />,
+  'Marketing': <ShoppingCart className="w-8 h-8 text-primary" />,
+  'Midjourney': <Gamepad2 className="w-8 h-8 text-primary" />,
+  'Motivation': <Lightbulb className="w-8 h-8 text-primary" />,
+  'Podcast': <Mic className="w-8 h-8 text-primary" />,
+  'Productivity': <BrainCircuit className="w-8 h-8 text-primary" />,
+  'Prompt Engineering': <Pencil className="w-8 h-8 text-primary" />,
+  'Relationships': <Users className="w-8 h-8 text-primary" />,
+  'Research': <Book className="w-8 h-8 text-primary" />,
+  'Storytelling': <PenTool className="w-8 h-8 text-primary" />,
+  'UI/UX': <Palette className="w-8 h-8 text-primary" />,
+  'YouTube': <Youtube className="w-8 h-8 text-primary" />,
+  'default': <Layers3 className="w-8 h-8 text-primary" />
+};
+
+const DecorativePattern = () => (
+  <div className="absolute inset-0 h-full w-full bg-transparent bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+);
 
 export function PromptExplorer() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -146,9 +174,16 @@ export function PromptExplorer() {
       <p className="text-lg text-muted-foreground text-center mb-10">Select a category to start exploring prompts.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {categories.map(category => (
-          <Card key={category.id} onClick={() => handleCategorySelect(category.id)} className="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden border-border/80 hover:border-primary/50">
-            <CardContent className="p-5 flex flex-col items-start justify-between h-full">
-              <Layers3 className="w-8 h-8 text-primary mb-3" />
+          <Card 
+            key={category.id} 
+            onClick={() => handleCategorySelect(category.id)} 
+            className="group relative hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden border-border/80 hover:border-primary/50 bg-card"
+          >
+            <DecorativePattern />
+            <CardContent className="p-6 flex flex-col items-start justify-between h-full relative">
+              <div className="bg-primary/10 p-2 rounded-lg mb-4">
+                {categoryIcons[category.name] || categoryIcons.default}
+              </div>
               <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">{category.name}</CardTitle>
             </CardContent>
           </Card>
