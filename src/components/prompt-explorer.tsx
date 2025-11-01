@@ -301,7 +301,7 @@ export function PromptExplorer() {
       {filteredPrompts.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
           {filteredPrompts.map(prompt => (
-            <Card key={prompt.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-card/50">
+            <Card key={prompt.id} className="group overflow-hidden shadow-sm hover:shadow-primary/20 transition-shadow bg-card/50">
               <CardHeader className="flex flex-row justify-between items-start pb-2">
                 <div>
                   <CardTitle className="text-lg font-semibold">{prompt.title}</CardTitle>
@@ -331,13 +331,13 @@ export function PromptExplorer() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-background/50 p-4 rounded-lg border">
+                <div className="whitespace-pre-wrap font-mono text-sm bg-background/50 p-4 rounded-lg border text-foreground/80 leading-relaxed">
                   {prompt.prompt_text}
                 </div>
-                <div className="flex items-center justify-end gap-1 mt-3">
-                    <Button variant="ghost" size="sm" onClick={() => handleCopy(prompt.prompt_text)}><Copy className="mr-2 h-4 w-4" />Copy</Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleShare(prompt.title, prompt.prompt_text)}><Share2 className="mr-2 h-4 w-4" />Share</Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}><Download className="mr-2 h-4 w-4" />Download</Button>
+                <div className="flex items-center justify-end gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(prompt.prompt_text)}><Copy className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShare(prompt.title, prompt.prompt_text)}><Share2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}><Download className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>

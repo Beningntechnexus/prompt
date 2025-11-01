@@ -31,26 +31,26 @@ export type Database = {
         Row: {
           category_id: number
           created_at: string
+          description: string
           id: number
           prompt_text: string
           title: string
-          description: string
         }
         Insert: {
           category_id: number
           created_at?: string
+          description: string
           id?: number
           prompt_text: string
           title: string
-          description: string
         }
         Update: {
           category_id?: number
           created_at?: string
+          description?: string
           id?: number
           prompt_text?: string
           title?: string
-          description?: string
         }
         Relationships: [
           {
