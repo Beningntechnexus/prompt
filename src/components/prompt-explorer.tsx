@@ -91,7 +91,7 @@ export function PromptExplorer() {
       setCategories(categoriesResult.data || []);
       setPrompts(promptsResult.data || []);
     } catch (err: any) {
-      setError('Failed to load data. Please try again later.');
+      setError('Failed to load prompts. Please try again later.');
       toast({
         variant: 'destructive',
         title: 'Error loading data',
@@ -236,7 +236,7 @@ export function PromptExplorer() {
   const renderError = () => (
     <Card className="mt-10 col-span-full flex flex-col items-center justify-center p-10 bg-destructive/10 border-destructive/30">
         <ServerCrash className="w-16 h-16 text-destructive mb-4" />
-        <CardTitle className="text-destructive mb-2">Something went wrong</CardTitle>
+        <CardTitle className="text-destructive mb-2">Failed to load prompts</CardTitle>
         <p className="text-destructive/80">{error}</p>
     </Card>
   );
