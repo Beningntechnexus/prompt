@@ -5,43 +5,49 @@ import { supabase } from '@/lib/supabase';
 import type { Category, Prompt } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Textarea } from '@/components/ui/textarea';
-import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2, ChevronRight } from 'lucide-react';
+import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2, ChevronRight, Brain, WandSparkles, PenLine, BookOpen, SearchCode, Dumbbell, Rocket } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
+
 const categoryIcons: { [key: string]: React.ReactNode } = {
-  'AI Tools': <BrainCircuit className="w-6 h-6 text-primary" />,
-  'Art': <Palette className="w-6 h-6 text-primary" />,
-  'Blogging': <PenTool className="w-6 h-6 text-primary" />,
-  'Business': <Building className="w-6 h-6 text-primary" />,
-  'ChatGPT': <BotMessageSquare className="w-6 h-6 text-primary" />,
-  'Coding': <Code className="w-6 h-6 text-primary" />,
-  'Education': <Book className="w-6 h-6 text-primary" />,
-  'Finance': <Briefcase className="w-6 h-6 text-primary" />,
-  'Health': <Heart className="w-6 h-6 text-primary" />,
-  'Marketing': <ShoppingCart className="w-6 h-6 text-primary" />,
-  'Midjourney': <Gamepad2 className="w-6 h-6 text-primary" />,
-  'Motivation': <Lightbulb className="w-6 h-6 text-primary" />,
-  'Podcast': <Mic className="w-6 h-6 text-primary" />,
-  'Productivity': <BrainCircuit className="w-6 h-6 text-primary" />,
-  'Prompt Engineering': <Pencil className="w-6 h-6 text-primary" />,
-  'Relationships': <Users className="w-6 h-6 text-primary" />,
-  'Research': <Book className="w-6 h-6 text-primary" />,
-  'Storytelling': <PenTool className="w-6 h-6 text-primary" />,
-  'UI/UX': <Palette className="w-6 h-6 text-primary" />,
-  'YouTube': <Youtube className="w-6 h-6 text-primary" />,
-  'default': <Layers3 className="w-6 h-6 text-primary" />
+  'Business & Marketing': <Briefcase className="w-8 h-8 text-primary" />,
+  'AI & Machine Learning': <Brain className="w-8 h-8 text-primary" />,
+  'Content Creation': <WandSparkles className="w-8 h-8 text-primary" />,
+  'Copywriting': <PenLine className="w-8 h-8 text-primary" />,
+  'Education & Learning': <BookOpen className="w-8 h-8 text-primary" />,
+  'Productivity': <Rocket className="w-8 h-8 text-primary" />,
+  'Health & Fitness': <Dumbbell className="w-8 h-8 text-primary" />,
+  'Technology': <SearchCode className="w-8 h-8 text-primary" />,
+  'Art': <Palette className="w-8 h-8 text-primary" />,
+  'Blogging': <PenTool className="w-8 h-8 text-primary" />,
+  'Business': <Building className="w-8 h-8 text-primary" />,
+  'ChatGPT': <BotMessageSquare className="w-8 h-8 text-primary" />,
+  'Coding': <Code className="w-8 h-8 text-primary" />,
+  'Education': <Book className="w-8 h-8 text-primary" />,
+  'Finance': <Briefcase className="w-8 h-8 text-primary" />,
+  'Health': <Heart className="w-8 h-8 text-primary" />,
+  'Marketing': <ShoppingCart className="w-8 h-8 text-primary" />,
+  'Midjourney': <Gamepad2 className="w-8 h-8 text-primary" />,
+  'Motivation': <Lightbulb className="w-8 h-8 text-primary" />,
+  'Podcast': <Mic className="w-8 h-8 text-primary" />,
+  'Prompt Engineering': <Pencil className="w-8 h-8 text-primary" />,
+  'Relationships': <Users className="w-8 h-8 text-primary" />,
+  'Research': <Book className="w-8 h-8 text-primary" />,
+  'Storytelling': <PenTool className="w-8 h-8 text-primary" />,
+  'UI/UX': <Palette className="w-8 h-8 text-primary" />,
+  'YouTube': <Youtube className="w-8 h-8 text-primary" />,
+  'default': <Layers3 className="w-8 h-8 text-primary" />
 };
 
 // --- Data Fetching and Mutations ---
 
 const fetchCategories = async () => supabase.from('categories').select('*').order('name');
-const fetchPrompts = async () => supabase.from('prompts').select('id, title, prompt_text, category_id');
+const fetchPrompts = async () => supabase.from('prompts').select('id, title, prompt_text, category_id, description');
 
 const createPrompt = async (prompt: Omit<Prompt, 'id' | 'created_at'>) => {
   return supabase.from('prompts').insert(prompt).select().single();
@@ -182,7 +188,7 @@ export function PromptExplorer() {
     setIsFormOpen(true);
   }
 
-  const handleFormSubmit = async (formData: { title: string, prompt_text: string }) => {
+  const handleFormSubmit = async (formData: { title: string, prompt_text: string, description: string }) => {
     try {
       if (editingPrompt) {
         // Update existing prompt
@@ -216,14 +222,12 @@ export function PromptExplorer() {
   };
 
   const renderLoading = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <Card key={i} className="flex items-center p-4">
-          <Skeleton className="h-10 w-10 mr-4 rounded-lg" />
-          <div className="flex-grow">
-            <Skeleton className="h-5 w-3/4 mb-2" />
-            <Skeleton className="h-3 w-1/2" />
-          </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <Card key={i} className="bg-card/50 flex flex-col items-center justify-center p-6 text-center">
+          <Skeleton className="h-10 w-10 mb-4 rounded-lg" />
+          <Skeleton className="h-5 w-3/4 mb-2" />
+          <Skeleton className="h-3 w-1/2" />
         </Card>
       ))}
     </div>
@@ -238,32 +242,25 @@ export function PromptExplorer() {
   );
 
   const renderCategoryGrid = () => (
-    <div>
-      <h2 className="text-3xl font-bold tracking-tight text-center mb-2">Categories</h2>
-      <p className="text-lg text-muted-foreground text-center mb-10">Select a category to start exploring prompts.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map(category => (
-          <button
-            key={category.id} 
-            onClick={() => handleCategorySelect(category.id)} 
-            className="group text-left w-full bg-card rounded-lg border p-4 hover:shadow-lg hover:border-primary/50 transition-all duration-200 flex items-center gap-4"
-          >
-            <div className="bg-primary/10 p-3 rounded-lg">
-                {categoryIcons[category.name] || categoryIcons.default}
-            </div>
-            <div className="flex-grow">
-              <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors">{category.name}</h3>
-              <p className="text-sm text-muted-foreground">Browse Prompts</p>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-all duration-200 group-hover:translate-x-1" />
-          </button>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {categories.map(category => (
+        <button
+          key={category.id} 
+          onClick={() => handleCategorySelect(category.id)} 
+          className="group text-center w-full bg-card/50 rounded-lg border border-transparent p-6 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1"
+        >
+          <div className="flex justify-center mb-4">
+              {categoryIcons[category.name] || categoryIcons.default}
+          </div>
+          <h3 className="font-semibold text-md text-card-foreground mb-1">{category.name}</h3>
+          <p className="text-xs text-muted-foreground">{prompts.filter(p => p.category_id === category.id).length} Prompts</p>
+        </button>
+      ))}
     </div>
   );
 
   const renderPromptList = () => (
-    <div>
+    <div className="text-left">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-8">
         <div>
           <Button variant="ghost" onClick={handleBackToCategories} className="-ml-4 text-muted-foreground hover:text-foreground">
@@ -272,7 +269,7 @@ export function PromptExplorer() {
           </Button>
           <div className="flex items-center gap-3 mt-2">
             <div className="bg-primary/10 p-3 rounded-lg">
-              {categoryIcons[selectedCategory?.name || 'default']}
+              {categoryIcons[selectedCategory?.name || 'default'] || <Layers3 className="w-6 h-6 text-primary" />}
             </div>
             <div>
               <h2 className="text-3xl font-bold tracking-tight">
@@ -297,16 +294,19 @@ export function PromptExplorer() {
           placeholder="Search prompts in this category..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-12 pr-4 py-3 text-base h-12 rounded-full bg-card border-2"
+          className="pl-12 pr-4 py-3 text-base h-12 rounded-full bg-card/50 border-2 border-border focus:border-primary"
         />
       </div>
 
       {filteredPrompts.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
           {filteredPrompts.map(prompt => (
-            <Card key={prompt.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <Card key={prompt.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-card/50">
               <CardHeader className="flex flex-row justify-between items-start pb-2">
-                <CardTitle className="text-lg font-semibold">{prompt.title}</CardTitle>
+                <div>
+                  <CardTitle className="text-lg font-semibold">{prompt.title}</CardTitle>
+                  <CardDescription className="text-sm mt-1">{prompt.description}</CardDescription>
+                </div>
                 <div className="flex items-center -mr-2 -mt-2">
                   <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(prompt)}><Pencil className="h-4 w-4 text-muted-foreground" /></Button>
                   <AlertDialog>
@@ -331,7 +331,7 @@ export function PromptExplorer() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-muted/50 p-4 rounded-lg border">
+                <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-background/50 p-4 rounded-lg border">
                   {prompt.prompt_text}
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-3">
@@ -344,7 +344,7 @@ export function PromptExplorer() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 px-4 border-2 border-dashed rounded-xl bg-card">
+        <div className="text-center py-16 px-4 border-2 border-dashed rounded-xl bg-card/50">
           <Search className="mx-auto h-12 w-12 text-muted-foreground" />
           <h3 className="mt-4 text-lg font-semibold">No Prompts Found</h3>
           <p className="mt-2 text-sm text-muted-foreground">Your search for "{searchQuery}" did not return any results.</p>
@@ -374,18 +374,20 @@ export function PromptExplorer() {
 interface PromptFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (formData: { title: string, prompt_text: string }) => Promise<void>;
+  onSubmit: (formData: { title: string, prompt_text: string, description: string }) => Promise<void>;
   prompt: Prompt | null;
 }
 
 function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptFormDialogProps) {
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [promptText, setPromptText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setTitle(prompt?.title || '');
+      setDescription(prompt?.description || '');
       setPromptText(prompt?.prompt_text || '');
     }
   }, [isOpen, prompt]);
@@ -393,13 +395,13 @@ function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptForm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await onSubmit({ title, prompt_text: promptText });
+    await onSubmit({ title, description, prompt_text: promptText });
     setIsSubmitting(false);
   };
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[625px] bg-background">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{prompt ? 'Edit Prompt' : 'Create New Prompt'}</DialogTitle>
@@ -408,6 +410,10 @@ function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptForm
             <div className="grid gap-2">
               <label htmlFor="title">Title</label>
               <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="description">Description</label>
+              <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
             </div>
             <div className="grid gap-2">
               <label htmlFor="prompt_text">Prompt</label>

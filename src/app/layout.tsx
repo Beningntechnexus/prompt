@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Prompt Explorer',
-  description: 'Explore and search for prompts from a Supabase database.',
+  title: 'PromptVerse AI',
+  description: 'The Ultimate Prompt Library for AI Creators.',
 };
 
 export default function RootLayout({
@@ -13,14 +13,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased h-full">
-        {children}
+        <div className="min-h-screen bg-background text-foreground" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -20%,rgba(120,119,198,0.3),hsla(0,0%,100%,0))' }}>
+          {children}
+        </div>
         <Toaster />
       </body>
     </html>

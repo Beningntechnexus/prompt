@@ -34,6 +34,7 @@ export type Database = {
           id: number
           prompt_text: string
           title: string
+          description: string
         }
         Insert: {
           category_id: number
@@ -41,6 +42,7 @@ export type Database = {
           id?: number
           prompt_text: string
           title: string
+          description: string
         }
         Update: {
           category_id?: number
@@ -48,6 +50,7 @@ export type Database = {
           id?: number
           prompt_text?: string
           title?: string
+          description?: string
         }
         Relationships: [
           {
@@ -81,7 +84,7 @@ export type Tables<
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+        Database[PublicTableNameOrOptions["schema"]["Views"]])
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
