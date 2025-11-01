@@ -4,43 +4,39 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Category, Prompt } from '@/lib/types';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Textarea } from '@/components/ui/textarea';
-import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2 } from 'lucide-react';
+import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2, ChevronRight } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
-  'AI Tools': <BrainCircuit className="w-8 h-8 text-primary" />,
-  'Art': <Palette className="w-8 h-8 text-primary" />,
-  'Blogging': <PenTool className="w-8 h-8 text-primary" />,
-  'Business': <Building className="w-8 h-8 text-primary" />,
-  'ChatGPT': <BotMessageSquare className="w-8 h-8 text-primary" />,
-  'Coding': <Code className="w-8 h-8 text-primary" />,
-  'Education': <Book className="w-8 h-8 text-primary" />,
-  'Finance': <Briefcase className="w-8 h-8 text-primary" />,
-  'Health': <Heart className="w-8 h-8 text-primary" />,
-  'Marketing': <ShoppingCart className="w-8 h-8 text-primary" />,
-  'Midjourney': <Gamepad2 className="w-8 h-8 text-primary" />,
-  'Motivation': <Lightbulb className="w-8 h-8 text-primary" />,
-  'Podcast': <Mic className="w-8 h-8 text-primary" />,
-  'Productivity': <BrainCircuit className="w-8 h-8 text-primary" />,
-  'Prompt Engineering': <Pencil className="w-8 h-8 text-primary" />,
-  'Relationships': <Users className="w-8 h-8 text-primary" />,
-  'Research': <Book className="w-8 h-8 text-primary" />,
-  'Storytelling': <PenTool className="w-8 h-8 text-primary" />,
-  'UI/UX': <Palette className="w-8 h-8 text-primary" />,
-  'YouTube': <Youtube className="w-8 h-8 text-primary" />,
-  'default': <Layers3 className="w-8 h-8 text-primary" />
+  'AI Tools': <BrainCircuit className="w-6 h-6 text-primary" />,
+  'Art': <Palette className="w-6 h-6 text-primary" />,
+  'Blogging': <PenTool className="w-6 h-6 text-primary" />,
+  'Business': <Building className="w-6 h-6 text-primary" />,
+  'ChatGPT': <BotMessageSquare className="w-6 h-6 text-primary" />,
+  'Coding': <Code className="w-6 h-6 text-primary" />,
+  'Education': <Book className="w-6 h-6 text-primary" />,
+  'Finance': <Briefcase className="w-6 h-6 text-primary" />,
+  'Health': <Heart className="w-6 h-6 text-primary" />,
+  'Marketing': <ShoppingCart className="w-6 h-6 text-primary" />,
+  'Midjourney': <Gamepad2 className="w-6 h-6 text-primary" />,
+  'Motivation': <Lightbulb className="w-6 h-6 text-primary" />,
+  'Podcast': <Mic className="w-6 h-6 text-primary" />,
+  'Productivity': <BrainCircuit className="w-6 h-6 text-primary" />,
+  'Prompt Engineering': <Pencil className="w-6 h-6 text-primary" />,
+  'Relationships': <Users className="w-6 h-6 text-primary" />,
+  'Research': <Book className="w-6 h-6 text-primary" />,
+  'Storytelling': <PenTool className="w-6 h-6 text-primary" />,
+  'UI/UX': <Palette className="w-6 h-6 text-primary" />,
+  'YouTube': <Youtube className="w-6 h-6 text-primary" />,
+  'default': <Layers3 className="w-6 h-6 text-primary" />
 };
-
-const DecorativePattern = () => (
-  <div className="absolute inset-0 h-full w-full bg-transparent bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
-);
 
 // --- Data Fetching and Mutations ---
 
@@ -220,11 +216,14 @@ export function PromptExplorer() {
   };
 
   const renderLoading = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <Card key={i} className="p-6">
-          <Skeleton className="h-6 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <Card key={i} className="flex items-center p-4">
+          <Skeleton className="h-10 w-10 mr-4 rounded-lg" />
+          <div className="flex-grow">
+            <Skeleton className="h-5 w-3/4 mb-2" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
         </Card>
       ))}
     </div>
@@ -240,23 +239,24 @@ export function PromptExplorer() {
 
   const renderCategoryGrid = () => (
     <div>
-      <h1 className="text-4xl font-bold tracking-tight text-center mb-2 font-headline">Prompt Explorer</h1>
+      <h2 className="text-3xl font-bold tracking-tight text-center mb-2">Categories</h2>
       <p className="text-lg text-muted-foreground text-center mb-10">Select a category to start exploring prompts.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map(category => (
-          <Card 
+          <button
             key={category.id} 
             onClick={() => handleCategorySelect(category.id)} 
-            className="group relative hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden border-border/80 hover:border-primary/50 bg-card"
+            className="group text-left w-full bg-card rounded-lg border p-4 hover:shadow-lg hover:border-primary/50 transition-all duration-200 flex items-center gap-4"
           >
-            <DecorativePattern />
-            <CardContent className="p-6 flex flex-col items-start justify-between h-full relative">
-              <div className="bg-primary/10 p-2 rounded-lg mb-4">
+            <div className="bg-primary/10 p-3 rounded-lg">
                 {categoryIcons[category.name] || categoryIcons.default}
-              </div>
-              <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">{category.name}</CardTitle>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="flex-grow">
+              <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors">{category.name}</h3>
+              <p className="text-sm text-muted-foreground">Browse Prompts</p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-all duration-200 group-hover:translate-x-1" />
+          </button>
         ))}
       </div>
     </div>
@@ -264,82 +264,90 @@ export function PromptExplorer() {
 
   const renderPromptList = () => (
     <div>
-      <div className="flex justify-between items-start">
+      <div className="flex flex-wrap gap-4 justify-between items-center mb-8">
         <div>
-          <Button variant="ghost" onClick={handleBackToCategories} className="mb-6 -ml-4">
+          <Button variant="ghost" onClick={handleBackToCategories} className="-ml-4 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Categories
           </Button>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 font-headline">
-            {selectedCategory?.name}
-          </h1>
-          <p className="text-md text-muted-foreground mb-6">
-            {`Browse and search for prompts in the "${selectedCategory?.name}" category.`}
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="bg-primary/10 p-3 rounded-lg">
+              {categoryIcons[selectedCategory?.name || 'default']}
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight">
+                {selectedCategory?.name}
+              </h2>
+              <p className="text-md text-muted-foreground">
+                {`${filteredPrompts.length} prompts available`}
+              </p>
+            </div>
+          </div>
         </div>
-        <Button onClick={handleOpenCreateForm} className="mt-8">
+        <Button onClick={handleOpenCreateForm}>
           <PlusCircle className="mr-2 h-4 w-4" />
           New Prompt
         </Button>
       </div>
 
       <div className="relative mb-8">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
           type="text" 
-          placeholder="Search prompts by keyword..."
+          placeholder="Search prompts in this category..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 text-base"
+          className="pl-12 pr-4 py-3 text-base h-12 rounded-full bg-card border-2"
         />
       </div>
 
       {filteredPrompts.length > 0 ? (
-        <Accordion type="single" collapsible className="w-full space-y-4">
+        <div className="grid grid-cols-1 gap-6">
           {filteredPrompts.map(prompt => (
-            <AccordionItem key={prompt.id} value={`item-${prompt.id}`} className="bg-card border rounded-lg shadow-sm">
-              <AccordionTrigger className="p-4 text-left font-medium hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <BotMessageSquare className="h-5 w-5 text-primary/80 flex-shrink-0" />
-                  <span>{prompt.title}</span>
+            <Card key={prompt.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row justify-between items-start pb-2">
+                <CardTitle className="text-lg font-semibold">{prompt.title}</CardTitle>
+                <div className="flex items-center -mr-2 -mt-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(prompt)}><Pencil className="h-4 w-4 text-muted-foreground" /></Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete this prompt.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeletePrompt(prompt.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="p-4 pt-0">
-                <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-muted/50 p-3 rounded-md">
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap font-code text-sm bg-muted/50 p-4 rounded-lg border">
                   {prompt.prompt_text}
                 </div>
-                <div className="flex items-center justify-end gap-1 mt-4">
-                    <Button variant="ghost" size="icon" onClick={() => handleCopy(prompt.prompt_text)}><Copy className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleShare(prompt.title, prompt.prompt_text)}><Share2 className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}><Download className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(prompt)}><Pencil className="h-4 w-4" /></Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete this prompt.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeletePrompt(prompt.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                <div className="flex items-center justify-end gap-1 mt-3">
+                    <Button variant="ghost" size="sm" onClick={() => handleCopy(prompt.prompt_text)}><Copy className="mr-2 h-4 w-4" />Copy</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleShare(prompt.title, prompt.prompt_text)}><Share2 className="mr-2 h-4 w-4" />Share</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDownload(prompt.title, prompt.prompt_text)}><Download className="mr-2 h-4 w-4" />Download</Button>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
+              </CardContent>
+            </Card>
           ))}
-        </Accordion>
+        </div>
       ) : (
-        <div className="text-center py-10 px-4 border-2 border-dashed rounded-lg">
-          <p className="text-muted-foreground">No prompts found for your search.</p>
+        <div className="text-center py-16 px-4 border-2 border-dashed rounded-xl bg-card">
+          <Search className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-semibold">No Prompts Found</h3>
+          <p className="mt-2 text-sm text-muted-foreground">Your search for "{searchQuery}" did not return any results.</p>
         </div>
       )}
     </div>
