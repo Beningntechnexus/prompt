@@ -1,18 +1,19 @@
 import { PromptExplorer } from '@/components/prompt-explorer';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <h1 className="text-xl font-bold tracking-tight">PromptVerse AI</h1>
+          <Link href="/" className="text-xl font-bold tracking-tight">PromptVerse AI</Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Home</a>
-            <a href="#" className="hover:text-foreground transition-colors">Categories</a>
-            <a href="#" className="hover:text-foreground transition-colors">Submit Prompt</a>
-            <a href="#" className="hover:text-foreground transition-colors">About</a>
+            <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+            <Link href="/categories" className="hover:text-foreground transition-colors">Categories</Link>
+            <Link href="/submit" className="hover:text-foreground transition-colors">Submit Prompt</Link>
+            <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
           </nav>
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
@@ -27,11 +28,12 @@ export default function Home() {
           20+ Expert Categories - 100+ Curated Prompts - 100% Free
         </p>
         <div className="mt-8 flex justify-center gap-4">
-          <Button size="lg">Search Prompts</Button>
-          <Button size="lg" variant="outline">Explore Categories</Button>
-        </div>
-        <div className="mt-20">
-          <PromptExplorer />
+          <Button asChild size="lg">
+            <Link href="/categories">Search Prompts</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/categories">Explore Categories</Link>
+          </Button>
         </div>
       </main>
       <footer className="container mx-auto px-4 py-6 text-center text-xs text-muted-foreground">

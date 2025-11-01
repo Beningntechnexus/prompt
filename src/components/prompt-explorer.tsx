@@ -364,6 +364,8 @@ export function PromptExplorer() {
         onOpenChange={setIsFormOpen}
         onSubmit={handleFormSubmit}
         prompt={editingPrompt}
+        categories={categories}
+        selectedCategoryId={selectedCategoryId}
       />
     </div>
   );
@@ -374,14 +376,17 @@ export function PromptExplorer() {
 interface PromptFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (formData: { title: string, prompt_text: string, description: string }) => Promise<void>;
+  onSubmit: (formData: { title: string, prompt_text: string, description: string, category_id?: number }) => Promise<void>;
   prompt: Prompt | null;
+  categories: Category[];
+  selectedCategoryId: number | null;
 }
 
-function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptFormDialogProps) {
+function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt, categories, selectedCategoryId }: PromptFormDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [promptText, setPromptText] = useState('');
+  const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -389,13 +394,18 @@ function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptForm
       setTitle(prompt?.title || '');
       setDescription(prompt?.description || '');
       setPromptText(prompt?.prompt_text || '');
+      setCategoryId(prompt?.category_id || selectedCategoryId || undefined);
     }
-  }, [isOpen, prompt]);
+  }, [isOpen, prompt, selectedCategoryId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!categoryId) {
+        // Maybe show a toast?
+        return;
+    }
     setIsSubmitting(true);
-    await onSubmit({ title, description, prompt_text: promptText });
+    await onSubmit({ title, description, prompt_text: promptText, category_id: categoryId });
     setIsSubmitting(false);
   };
   
@@ -415,6 +425,23 @@ function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptForm
               <label htmlFor="description">Description</label>
               <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
             </div>
+            {categories.length > 0 && (
+              <div className="grid gap-2">
+                <label htmlFor="category">Category</label>
+                <select
+                  id="category"
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(Number(e.target.value))}
+                  required
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="grid gap-2">
               <label htmlFor="prompt_text">Prompt</label>
               <Textarea id="prompt_text" value={promptText} onChange={(e) => setPromptText(e.target.value)} required className="min-h-[200px]" />
@@ -431,3 +458,4 @@ function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt }: PromptForm
     </Dialog>
   );
 }
+
