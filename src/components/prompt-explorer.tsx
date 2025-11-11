@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Textarea } from '@/components/ui/textarea';
 import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2, ChevronRight, Brain, WandSparkles, PenLine, BookOpen, SearchCode, Dumbbell, Rocket } from 'lucide-react';
@@ -331,7 +331,7 @@ export function PromptExplorer() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="whitespace-pre-wrap font-mono text-sm bg-background/50 p-4 rounded-lg border text-foreground/80 leading-relaxed">
+                <div className="text-sm text-card-foreground/90 py-4 leading-relaxed whitespace-pre-wrap font-sans">
                   {prompt.prompt_text}
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -458,4 +458,3 @@ function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt, categories, 
     </Dialog>
   );
 }
-
