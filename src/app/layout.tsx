@@ -7,7 +7,7 @@ import Favicon from './icon';
 import { ServiceWorkerRegistrar } from '@/components/service-worker-registrar';
 
 export const metadata: Metadata = {
-  title: 'PromptVerse AI',
+  title: 'BBprompts',
   description: 'The Ultimate Prompt Library for AI Creators.',
 };
 

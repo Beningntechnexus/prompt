@@ -12,7 +12,7 @@ export function Header() {
     <>
       <header className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link href="/" className="text-xl font-bold tracking-tight">PromptVerse AI</Link>
+          <Link href="/" className="text-xl font-bold tracking-tight">BBprompts</Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
             <Link href="/categories" className="hover:text-foreground transition-colors">Categories</Link>
