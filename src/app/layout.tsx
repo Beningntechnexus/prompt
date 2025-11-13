@@ -5,6 +5,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import Favicon from './icon';
 import { ServiceWorkerRegistrar } from '@/components/service-worker-registrar';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'BBprompts',
@@ -34,6 +35,7 @@ export default function RootLayout({
         </div>
         <Toaster />
         <ServiceWorkerRegistrar />
+        <Script type='text/javascript' src='//pl28043868.effectivegatecpm.com/90/c6/15/90c61544256079a26f9582f56802784b.js' />
       </body>
     </html>
   );
