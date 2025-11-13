@@ -7,10 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Textarea } from '@/components/ui/textarea';
-import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, Pencil, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2, ChevronRight, Brain, WandSparkles, PenLine, BookOpen, SearchCode, Dumbbell, Rocket } from 'lucide-react';
+import { Search, ArrowLeft, Layers3, BotMessageSquare, ServerCrash, Copy, Share2, Download, Code, ShoppingCart, Video, Book, Gamepad2, Heart, Mic, BrainCircuit, Users, PenTool, Youtube, Palette, Building, Briefcase, Lightbulb, Music, PlusCircle, Trash2, ChevronRight, Brain, WandSparkles, PenLine, BookOpen, SearchCode, Dumbbell, Rocket, Pencil } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -49,18 +47,6 @@ const categoryIcons: { [key: string]: React.ReactNode } = {
 const fetchCategories = async () => supabase.from('categories').select('*').order('name');
 const fetchPrompts = async () => supabase.from('prompts').select('id, title, prompt_text, category_id, description');
 
-const createPrompt = async (prompt: Omit<Prompt, 'id' | 'created_at'>) => {
-  return supabase.from('prompts').insert(prompt).select().single();
-};
-
-const updatePrompt = async (id: number, updates: Partial<Prompt>) => {
-  return supabase.from('prompts').update(updates).eq('id', id).select().single();
-};
-
-const deletePrompt = async (id: number) => {
-  return supabase.from('prompts').delete().eq('id', id);
-};
-
 
 // --- Main Component ---
 
@@ -71,8 +57,6 @@ export function PromptExplorer() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
 
   const { toast } = useToast();
 
@@ -178,49 +162,6 @@ export function PromptExplorer() {
     URL.revokeObjectURL(url);
   };
 
-  const handleOpenEditForm = (prompt: Prompt) => {
-    setEditingPrompt(prompt);
-    setIsFormOpen(true);
-  };
-
-  const handleOpenCreateForm = () => {
-    setEditingPrompt(null);
-    setIsFormOpen(true);
-  }
-
-  const handleFormSubmit = async (formData: { title: string, prompt_text: string, description: string }) => {
-    try {
-      if (editingPrompt) {
-        // Update existing prompt
-        const { data, error } = await updatePrompt(editingPrompt.id, formData);
-        if (error) throw error;
-        setPrompts(prompts.map(p => p.id === data.id ? data : p));
-        toast({ title: 'Success', description: 'Prompt updated successfully.' });
-      } else if(selectedCategoryId) {
-        // Create new prompt
-        const { data, error } = await createPrompt({ ...formData, category_id: selectedCategoryId });
-        if (error) throw error;
-        setPrompts([...prompts, data]);
-        toast({ title: 'Success', description: 'Prompt created successfully.' });
-      }
-      setIsFormOpen(false);
-      setEditingPrompt(null);
-    } catch (err: any) {
-      toast({ variant: "destructive", title: "Save failed", description: err.message });
-    }
-  };
-
-  const handleDeletePrompt = async (id: number) => {
-    try {
-      const { error } = await deletePrompt(id);
-      if (error) throw error;
-      setPrompts(prompts.filter(p => p.id !== id));
-      toast({ title: 'Success', description: 'Prompt deleted successfully.' });
-    } catch (err: any) {
-      toast({ variant: "destructive", title: "Delete failed", description: err.message });
-    }
-  };
-
   const renderLoading = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {Array.from({ length: 8 }).map((_, i) => (
@@ -281,10 +222,6 @@ export function PromptExplorer() {
             </div>
           </div>
         </div>
-        <Button onClick={handleOpenCreateForm}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Prompt
-        </Button>
       </div>
 
       <div className="relative mb-8">
@@ -306,28 +243,6 @@ export function PromptExplorer() {
                 <div>
                   <CardTitle className="text-lg font-semibold">{prompt.title}</CardTitle>
                   <CardDescription className="text-sm mt-1">{prompt.description}</CardDescription>
-                </div>
-                <div className="flex items-center -mr-2 -mt-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(prompt)}><Pencil className="h-4 w-4 text-muted-foreground" /></Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete this prompt.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeletePrompt(prompt.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
                 </div>
               </CardHeader>
               <CardContent>
@@ -359,102 +274,6 @@ export function PromptExplorer() {
        error ? renderError() :
        selectedCategoryId === null ? renderCategoryGrid() : renderPromptList()
       }
-      <PromptFormDialog 
-        isOpen={isFormOpen} 
-        onOpenChange={setIsFormOpen}
-        onSubmit={handleFormSubmit}
-        prompt={editingPrompt}
-        categories={categories}
-        selectedCategoryId={selectedCategoryId}
-      />
     </div>
-  );
-}
-
-// --- PromptFormDialog Component ---
-
-interface PromptFormDialogProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (formData: { title: string, prompt_text: string, description: string, category_id?: number }) => Promise<void>;
-  prompt: Prompt | null;
-  categories: Category[];
-  selectedCategoryId: number | null;
-}
-
-function PromptFormDialog({ isOpen, onOpenChange, onSubmit, prompt, categories, selectedCategoryId }: PromptFormDialogProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [promptText, setPromptText] = useState('');
-  const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setTitle(prompt?.title || '');
-      setDescription(prompt?.description || '');
-      setPromptText(prompt?.prompt_text || '');
-      setCategoryId(prompt?.category_id || selectedCategoryId || undefined);
-    }
-  }, [isOpen, prompt, selectedCategoryId]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!categoryId) {
-        // Maybe show a toast?
-        return;
-    }
-    setIsSubmitting(true);
-    await onSubmit({ title, description, prompt_text: promptText, category_id: categoryId });
-    setIsSubmitting(false);
-  };
-  
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[625px] bg-background">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{prompt ? 'Edit Prompt' : 'Create New Prompt'}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <label htmlFor="title">Title</label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-            </div>
-            <div className="grid gap-2">
-              <label htmlFor="description">Description</label>
-              <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
-            </div>
-            {categories.length > 0 && (
-              <div className="grid gap-2">
-                <label htmlFor="category">Category</label>
-                <select
-                  id="category"
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(Number(e.target.value))}
-                  required
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                >
-                  <option value="">Select a category</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div className="grid gap-2">
-              <label htmlFor="prompt_text">Prompt</label>
-              <Textarea id="prompt_text" value={promptText} onChange={(e) => setPromptText(e.target.value)} required className="min-h-[200px]" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   );
 }
