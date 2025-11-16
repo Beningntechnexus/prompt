@@ -22,6 +22,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+        <Script src="https://fpyf8.com/88/tag.min.js" data-zone="185597" async data-cfasync="false" />
       </head>
       <body className="font-body antialiased h-full">
         <div className="flex flex-col min-h-screen bg-background text-foreground" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -20%,rgba(120,119,198,0.3),hsla(0,0%,100%,0))' }}>
