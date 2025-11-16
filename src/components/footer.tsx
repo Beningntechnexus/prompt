@@ -1,4 +1,4 @@
-import { Mail, Send, Bot } from 'lucide-react';
+import { Mail, Send } from 'lucide-react';
 import Link from 'next/link';
 
 // A component for the WhatsApp icon, as it's not in lucide-react

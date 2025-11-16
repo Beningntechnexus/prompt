@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Search, Menu, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, Menu } from 'lucide-react';
+import { useState } from 'react';
 import { SearchDialog } from './search-dialog';
 import {
   Sheet,
@@ -13,17 +13,6 @@ import {
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Close mobile menu on escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   return (
     <>

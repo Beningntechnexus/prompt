@@ -35,7 +35,7 @@ export default function RootLayout({
         <Toaster />
         <ServiceWorkerRegistrar />
         <Script type='text/javascript' src='//pl28043868.effectivegatecpm.com/90/c6/15/90c61544256079a26f9582f56802784b.js' />
-        <Script type='text/javascript'src='//pl28043927.effectivegatecpm.com/d0/32/ad/d032ad199b171810aa79624904271347.js' />
+        <Script type='text/javascript' src='//pl28043927.effectivegatecpm.com/d0/32/ad/d032ad199b171810aa79624904271347.js' />
       </body>
     </html>
   );

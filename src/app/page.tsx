@@ -1,7 +1,7 @@
 import { AdBanner } from '@/components/ad-banner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Mail, Send, Users } from 'lucide-react';
+import { Mail, Send, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
